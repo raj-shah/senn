@@ -102,3 +102,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# pycharm
+.idea/
+
+# tensorboard
+runs/
+
+# pytorch
+.pt
