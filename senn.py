@@ -50,12 +50,23 @@ class RelevanceParametrizer(nn.Module):
         return out
 
 
+class Aggregator(nn.Module):
+    def __init__(self):
+        super(Aggregator, self).__init__()
+        self.logsoftmax = nn.LogSoftmax(dim=1)
+
+    def forward(self, theta, h):
+        g = theta * h
+        g = self.logsoftmax(g)
+        return g
+
+
 class SENN(nn.Module):
     def __init__(self):
         super(SENN, self).__init__()
         self.concept_encoder = ConceptEncoder()
         self.relevance_parametrizer = RelevanceParametrizer()
-        self.logsoftmax = nn.LogSoftmax(dim=1)
+        self.aggregator = Aggregator()
 
     def forward(self, x):
         ## relevance parametrizer
@@ -65,6 +76,6 @@ class SENN(nn.Module):
         h = self.concept_encoder(x)
 
         ## aggregator
-        g = theta*h
-        g = self.logsoftmax(g)
+        g = self.aggregator(theta, h)
         return g, h, theta
+

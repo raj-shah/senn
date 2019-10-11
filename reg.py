@@ -37,3 +37,4 @@ def parametriser_regulariser(x, g, theta, h):
     theta_times_jacob_h = torch.einsum('ijiklm,ij->ijklm', jacob_h, theta)
     reg = torch.sum((grad_f.cuda() - theta_times_jacob_h.cuda()) ** 2)
     return reg
+
