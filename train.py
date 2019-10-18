@@ -52,15 +52,13 @@ def train(writer, model, device, trainloader, robustness_optimizer, cls_optimize
     train_loss /= len(trainloader.dataset)
 
     writer.add_scalar('accuracy/train', 100. * correct / len(trainloader.dataset), epoch)
-    print('Epoch {}\t Train\t Loss: {:.4f} Accuracy: {}/{} ({:.4f}%)\t Time: {}'.format(epoch,
-                                                                                        train_loss,
-                                                                                        correct,
-                                                                                        len(trainloader.dataset),
-                                                                                        100. * correct / len(trainloader.dataset),
-                                                                                        time.time() - start_time))
+    print('Epoch {:<2} {:5}  AvgLoss:{:.4f}  Accuracy:{:.2f}%  Time:{:.2f}s'.format(epoch,
+                                                                                    '[train]',
+                                                                                    train_loss,
+                                                                                    100. * correct / len(trainloader.dataset),
+                                                                                    time.time() - start_time))
 
 def val(writer, model, device, valloader, criterion, epoch):
-    print('Epoch {}: Val'.format(epoch))
 
     # metrics
     val_loss = 0.0
@@ -88,12 +86,11 @@ def val(writer, model, device, valloader, criterion, epoch):
     val_loss /= len(valloader.dataset)
 
     writer.add_scalar('accuracy/val', 100. * correct / len(valloader.dataset), epoch)
-    print('Epoch {}\t Val\t Average loss: {:.4f}\t Accuracy: {}/{} ({:.0f}%)\t Time: {}'.format(epoch,
-                                                                                                val_loss,
-                                                                                                correct,
-                                                                                                len(valloader.dataset),
-                                                                                                100. * correct / len(valloader.dataset),
-                                                                                                time.time() - start_time))
+    print('Epoch {:<2} {:7}  AvgLoss:{:.4f}  Accuracy:{:.2f}%  Time:{:.2f}s'.format(epoch,
+                                                                                    '[val]',
+                                                                                    val_loss,
+                                                                                    100. * correct / len(valloader.dataset),
+                                                                                    time.time() - start_time))
     return val_loss
 
 
@@ -139,7 +136,7 @@ def main():
 
     criterion = nn.CrossEntropyLoss()
 
-    best_val_loss = 0.0
+    best_val_loss = 100
     for epoch in range(1, args.epochs + 1):
         train(writer, model, device, trainloader, robustness_optimizer, cls_optimizer, criterion, epoch)
         val_loss = val(writer, model, device, valloader, criterion, epoch)
