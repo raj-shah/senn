@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -53,11 +54,9 @@ class RelevanceParametrizer(nn.Module):
 class Aggregator(nn.Module):
     def __init__(self):
         super(Aggregator, self).__init__()
-        self.logsoftmax = nn.LogSoftmax(dim=1)
 
     def forward(self, theta, h):
-        g = theta * h
-        g = self.logsoftmax(g)
+        g = theta + h
         return g
 
 
@@ -79,3 +78,17 @@ class SENN(nn.Module):
         g = self.aggregator(theta, h)
         return g, h, theta
 
+
+if __name__ == '__main__':
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+    model = SENN().to(device)
+
+    inp = torch.rand((2,1,28,28)).to(device)
+    g, h, theta = model(inp)
+
+    print(g.shape)
+    print(h.shape)
+    print(theta.shape)
+
+    # print(list(model.aggregator.parameters()))
