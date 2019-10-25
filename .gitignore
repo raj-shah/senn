@@ -110,4 +110,4 @@ venv.bak/
 runs/
 
 # pytorch
-.pt
+*.pt

@@ -26,10 +26,10 @@ def batch_jacobian(outputs, inputs, create_graph=False):
     return jac.view(outputs.size() + inputs.size())
 
 
-def parametriser_regulariser(x, g, theta, h):
+def parametriser_regulariser(x, h, theta, g, num_concepts=5):
     batch_size = x.shape[0]
-    grad_f = torch.zeros(batch_size, 10, 1, 28, 28)
-    for i in range(10):
+    grad_f = torch.zeros(batch_size, num_concepts, 1, 28, 28)
+    for i in range(num_concepts):
         grad_f[:, i] = torch.autograd.grad(g[:, i].sum(), x, retain_graph=True)[0].data
     # grad_f = torch.autograd.grad(g, x)
     jacob_h = batch_jacobian(h, x)
