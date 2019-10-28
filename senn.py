@@ -13,23 +13,33 @@ def num_flat_features(x):
 class ConceptAutoencoder(nn.Module):
     def __init__(self, num_concepts):
         super(ConceptAutoencoder, self).__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(28 * 28, 128), nn.ReLU(True),
-            nn.Linear(128, 64), nn.ReLU(True),
-            nn.Linear(64, 12), nn.ReLU(True),
-            nn.Linear(12, num_concepts)
-        )
+        # self.encoder = nn.Sequential(
+        #     nn.Linear(28 * 28, 128), nn.ReLU(True),
+        #     nn.Linear(128, 64), nn.ReLU(True),
+        #     nn.Linear(64, 12), nn.ReLU(True),
+        #     nn.Linear(12, num_concepts)
+        # )
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=10, kernel_size=5)
+        self.conv2 = nn.Conv2d(in_channels=10, out_channels=20, kernel_size=5)
+        self.fc1 = nn.Linear(20 * 20 * 20, 16)
+        self.fc2 = nn.Linear(16, num_concepts)
+        self.relu = nn.ReLU(inplace=True)
 
         self.decoder = nn.Sequential(
-            nn.Linear(num_concepts, 12), nn.ReLU(True),
-            nn.Linear(12, 64), nn.ReLU(True),
+            nn.Linear(num_concepts, 16), nn.ReLU(True),
+            nn.Linear(16, 64), nn.ReLU(True),
             nn.Linear(64, 128), nn.ReLU(True),
             nn.Linear(128, 28 * 28),
             nn.Tanh()
         )
 
     def forward(self, x):
-        encoder = self.encoder(x)
+        cpt = self.relu(self.conv1(x))
+        cpt = self.relu(self.conv2(cpt))
+        cpt = cpt.view(-1, num_flat_features(cpt))
+        cpt = self.relu(self.fc1(cpt))
+        encoder = self.fc2(cpt)
+        # encoder = self.encoder(x)
         decoder = self.decoder(encoder)
         return encoder, decoder
 
@@ -82,7 +92,8 @@ class SENN(nn.Module):
 
     def forward(self, x):
         ## concept encoder
-        concept_encoder, concept_decoder = self.concept_autoencoder(x.view(x.size(0), -1))
+        # concept_encoder, concept_decoder = self.concept_autoencoder(x.view(x.size(0), -1))
+        concept_encoder, concept_decoder = self.concept_autoencoder(x)
 
         ## relevance parametrizer
         relevance = self.relevance_parametrizer(x)
@@ -96,4 +107,5 @@ class SENN(nn.Module):
 if __name__ == '__main__':
     model = SENN(num_concepts=5)
     inp = torch.rand((2,1,28,28))
-    model(inp)
+    h ,h_hat, theta, g = model(inp)
+    print(h_hat.shape)
